@@ -1,6 +1,14 @@
 {
   "name": "taglify",
   "version": "1.0.-1",
+  "description": "Synchronize generated content inside marker blocks in any text file.",
+  "keywords": [
+    "markers",
+    "codegen",
+    "sync",
+    "readme",
+    "text"
+  ],
   "type": "module",
   "private": false,
   "sideEffects": false,
@@ -18,15 +26,15 @@
     }
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@trivago/prettier-plugin-sort-imports": "^5.0.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.6.0",
-    "size-limit": "^11.0.0",
     "@size-limit/file": "^11.0.0",
-    "esbuild": "^0.24.0"
+    "@trivago/prettier-plugin-sort-imports": "^5.0.0",
+    "@types/bun": "latest",
+    "@types/node": "^22.20.1",
+    "esbuild": "^0.24.0",
+    "prettier": "^3.0.0",
+    "size-limit": "^11.0.0",
+    "typescript": "^5.6.0"
   },
-  "peerDependencies": {},
   "license": "MIT",
   "author": "jayF0x",
   "engines": {
@@ -34,7 +42,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=esm && bun build src/index.ts --outdir dist --entry-naming index.cjs --target node --format cjs && tsc",
-    "typecheck": "tsc --noEmit --strict --skipLibCheck src/index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "bun test",
     "test:run": "bun test",
     "format": "prettier --write .",

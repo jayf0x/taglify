@@ -15,6 +15,7 @@ Ideas for future work beyond the POC. Nothing here is scheduled.
 - Glob support for matching multiple files.
 - Directory/recursive processing.
 - Ignore rules (e.g. `.taglifyignore`).
+- Support non-string values (objects/numbers), serialized as formatted JSON.
 - Custom serializers for non-string values.
 - Replace callbacks (function instead of static value).
 - Stronger typing for tag values and options.

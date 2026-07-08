@@ -39,17 +39,6 @@ test('replaces multiple occurrences of the same tag', () => {
   expect(matches?.length).toBe(2);
 });
 
-test('stringifies object values as formatted JSON', () => {
-  const text = '<!-- DATA:START -->old<!-- DATA:END -->';
-  const result = taglifyText(text, { DATA: { hello: 'world' } });
-
-  expect(result.text).toBe(
-    '<!-- DATA:START -->\n' +
-      JSON.stringify({ hello: 'world' }, null, 2) +
-      '\n<!-- DATA:END -->',
-  );
-});
-
 test('tag names are case-insensitive', () => {
   const text = '<!-- badges:START -->old<!-- BADGES:end -->';
   const result = taglifyText(text, { Badges: 'new' });
@@ -78,6 +67,8 @@ test('taglifyFile writes only when content changed', () => {
   expect(unchanged).toBe(false);
 });
 
-test('taglifyFile throws when file does not exist', () => {
-  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow();
+test('taglifyFile throws a friendly error when file does not exist', () => {
+  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow(
+    'File not found: /nonexistent/path.md',
+  );
 });
