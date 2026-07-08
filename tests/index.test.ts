@@ -1,0 +1,83 @@
+import { afterEach, expect, test } from 'bun:test';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import { taglifyFile, taglifyText } from '../src/index';
+
+test('replaces a single tag', () => {
+  const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
+  const result = taglifyText(text, { BADGES: 'new' });
+
+  expect(result.changed).toBe(true);
+  expect(result.text).toBe('<!-- BADGES:START -->\nnew\n<!-- BADGES:END -->');
+});
+
+test('replaces multiple tags', () => {
+  const text =
+    '<!-- A:START -->x<!-- A:END -->\n<!-- B:START -->y<!-- B:END -->';
+  const result = taglifyText(text, { A: '1', B: '2' });
+
+  expect(result.text).toContain('<!-- A:START -->\n1\n<!-- A:END -->');
+  expect(result.text).toContain('<!-- B:START -->\n2\n<!-- B:END -->');
+});
+
+test('leaves text unchanged when tag is missing', () => {
+  const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
+  const result = taglifyText(text, { OTHER: 'new' });
+
+  expect(result.changed).toBe(false);
+  expect(result.text).toBe(text);
+});
+
+test('replaces multiple occurrences of the same tag', () => {
+  const text =
+    '<!-- TAG:START -->a<!-- TAG:END -->\n<!-- TAG:START -->b<!-- TAG:END -->';
+  const result = taglifyText(text, { TAG: 'x' });
+
+  const matches = result.text.match(/x/g);
+  expect(matches?.length).toBe(2);
+});
+
+test('stringifies object values as formatted JSON', () => {
+  const text = '<!-- DATA:START -->old<!-- DATA:END -->';
+  const result = taglifyText(text, { DATA: { hello: 'world' } });
+
+  expect(result.text).toBe(
+    '<!-- DATA:START -->\n' +
+      JSON.stringify({ hello: 'world' }, null, 2) +
+      '\n<!-- DATA:END -->',
+  );
+});
+
+test('tag names are case-insensitive', () => {
+  const text = '<!-- badges:START -->old<!-- BADGES:end -->';
+  const result = taglifyText(text, { Badges: 'new' });
+
+  expect(result.text).toBe('<!-- BADGES:START -->\nnew\n<!-- BADGES:END -->');
+});
+
+let tempDir: string;
+
+afterEach(() => {
+  if (tempDir) rmSync(tempDir, { recursive: true, force: true });
+});
+
+test('taglifyFile writes only when content changed', () => {
+  tempDir = mkdtempSync(join(tmpdir(), 'taglify-'));
+  const filePath = join(tempDir, 'file.md');
+  writeFileSync(filePath, '<!-- TAG:START -->old<!-- TAG:END -->', 'utf8');
+
+  const changed = taglifyFile(filePath, { TAG: 'new' });
+  expect(changed).toBe(true);
+  expect(readFileSync(filePath, 'utf8')).toBe(
+    '<!-- TAG:START -->\nnew\n<!-- TAG:END -->',
+  );
+
+  const unchanged = taglifyFile(filePath, { OTHER: 'value' });
+  expect(unchanged).toBe(false);
+});
+
+test('taglifyFile throws when file does not exist', () => {
+  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow();
+});
