@@ -11,8 +11,8 @@
 
 I was writing bash functions to have my e2e tests output live stats in the
 README of [compress-shader-literals](https://github.com/jayf0x/compress-shader-literals).
-Then I started reaching for the same trick in other tools, followed the friction and pulled it
-out into its own package. Now I'm shipping it — enjoy 🤗
+Then I started reaching for the same trick in other tools and thought "why not ship this".
+Enjoy 🤗
 
 ## Installation
 
