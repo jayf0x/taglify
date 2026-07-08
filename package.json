@@ -55,10 +55,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jayF0x/taglify.git"
+    "url": "git+https://github.com/jayf0x/taglify.git"
   },
-  "homepage": "https://github.com/jayF0x/taglify#readme",
+  "homepage": "https://github.com/jayf0x/taglify#readme",
   "bugs": {
-    "url": "https://github.com/jayF0x/taglify/issues"
+    "url": "https://github.com/jayf0x/taglify/issues"
   }
 }
