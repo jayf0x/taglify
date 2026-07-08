@@ -57,26 +57,26 @@ COMMIT_LOG=$(git log --oneline "$PREV_TAG"..HEAD 2>/dev/null || git log --onelin
 echo ""
 echo "Updating changelog.md (Claude Code)..."
 
-# claude \
-#   --model haiku \
-#   --no-session-persistence \
-#   -p "Update changelog.md for a new NPM release of taglify.
+claude \
+  --model haiku \
+  --no-session-persistence \
+  -p "Update changelog.md for a new NPM release of taglify.
 
-# New version: $NEW
-# Previous tag: $PREV_TAG
+New version: $NEW
+Previous tag: $PREV_TAG
 
-# Commits since $PREV_TAG:
-# $COMMIT_LOG
+Commits since $PREV_TAG:
+$COMMIT_LOG
 
-# Instructions:
-# - Read changelog.md first
-# - Add a new '## v$NEW' section at the very top (directly below the '# Changelog' heading)
-# - Only include meaningful changes: features, bug fixes, breaking changes, perf improvements
-# - Skip any commit that is only: chore, deploy, dist, demo, docs, README, backlog, format, prettier, gif, preview, CI internals
-# - Each bullet: concise, imperative tense, 1 line (e.g. 'Add: custom transform option')
-# - If zero meaningful commits exist, write '- Internal/infrastructure changes only'
-# - Do NOT modify any existing changelog entries" \
-#   --allowedTools "Read,Edit,Write" 2>&1
+Instructions:
+- Read changelog.md first
+- Add a new '## v$NEW' section at the very top (directly below the '# Changelog' heading)
+- Only include meaningful changes: features, bug fixes, breaking changes, perf improvements
+- Skip any commit that is only: chore, deploy, dist, demo, docs, README, backlog, format, prettier, gif, preview, CI internals
+- Each bullet: concise, imperative tense, 1 line (e.g. 'Add: custom transform option')
+- If zero meaningful commits exist, write '- Internal/infrastructure changes only'
+- Do NOT modify any existing changelog entries" \
+  --allowedTools "Read,Edit,Write" 2>&1
 
 bun run format
 
