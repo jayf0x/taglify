@@ -91,14 +91,14 @@ bun -e "
 "
 
 # ── e. repokit magic: refresh README marker blocks (if any) ─────────────────
-if command -v repokit >/dev/null 2>&1; then
-  repokit readme
-else
-  echo "· repokit not on PATH — skipping README marker sync"
-fi
+# if command -v repokit >/dev/null 2>&1; then
+#   repokit readme
+# else
+#   echo "· repokit not on PATH — skipping README marker sync"
+# fi
 
 # ── f. commit ────────────────────────────────────────────────────────────────
-git add package.json bun.lock README.md changelog.md tests/bun.lock
+git add .
 git commit -m "chore: release $NEW"
 
 # ── g. tag + push (GHA workflow handles npm publish) ────────────────────────
