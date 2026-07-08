@@ -7,27 +7,12 @@
 
 ![Preview](./assets/preview.png)
 
-> ⭐ **Star [this repository](https://github.com/jayf0x/taglify) if you’d like to support its growth**
-
-Ever felt the friction of writing a one-off regex just to keep a badge, a
-table, or a live stat up to date in a file?
+> ⭐ **Star this [repository](https://github.com/jayf0x/taglify) if you’d like to support its growth.**
 
 I was writing bash functions to have my e2e tests output live stats in the
 README of [compress-shader-literals](https://github.com/jayf0x/compress-shader-literals).
-Then I started reaching for the same trick in other tools, so I pulled it
+Then I started reaching for the same trick in other tools, followed the friction and pulled it
 out into its own package. Now I'm shipping it — enjoy 🤗
-
-Drop a marker in any text file, point a script at it, done:
-
-```html
-<!-- BADGES:START -->
-old content
-<!-- BADGES:END -->
-```
-
-Taglify replaces everything between a matching pair of markers and leaves
-the rest of the file exactly as it is. It's not a template engine — no
-logic, no loops, no partials. Just a precise, predictable swap.
 
 ## Installation
 
@@ -36,50 +21,47 @@ bun add taglify
 # OR npm / pnpm / yarn ...
 ```
 
-## Quickstart
+## Example
 
-```ts
-import { taglifyFile } from 'taglify';
+In your README:
 
-taglifyFile('./README.md', { VERSION: getNewVersion(), BADGES: allBadges() });
+```md
+<!-- STATS:START -->
+<!-- STATS:END -->
 ```
 
-That's it — `taglifyFile` reads the file, swaps the content inside each
-matching marker, and writes back only if something actually changed.
+You build or release flow:
 
----
-
-## Automate it
-
-Taglify does nothing on its own — it's a building block for a script you
-already run. The common pattern is to call it right before a release, e.g.
-in your version bump script or a `prepublishOnly` hook:
-
-```ts
-// scripts/sync-readme.ts — run before every release
+```js
+// scripts/sync-readme.js
 import { taglifyFile } from 'taglify';
 
-import { version } from '../package.json';
-
-taglifyFile('./README.md', {
-  VERSION: version,
-  BADGES: renderBadges(),
-});
+const coverageSummary = '...';
+taglifyFile('./README.md', { STATS: coverageSummary });
 ```
 
 ```json
 // package.json
 {
   "scripts": {
-    "prepublishOnly": "bun run scripts/sync-readme.ts"
+    "prepublishOnly": "bun run scripts/sync-readme.js"
   }
 }
 ```
 
-Same idea works in a CI step, a git pre-commit hook, or a cron job — Taglify
-just needs to be called; when and how is up to you.
+result:
+
+```md
+| Browser | Passed | Failed |
+| ------- | ------ | ------ |
+| Brave   | 127    | 0      |
+| Firefox | 127    | 0      |
+| Edge    | 0      | 127    |
+```
 
 ---
+
+Same idea works in a CI step, a git pre-commit hook, or a cron job.
 
 ## API
 
@@ -133,10 +115,6 @@ where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 - [ ] Glob / directory processing
 - [ ] Support non-string values, serialized as formatted JSON
 
-## Contributing
-
-See [AGENTS.md](./AGENTS.md) for conventions when working on this repo.
-
 ## License
 
-MIT
+[MIT](./LICENSE) © [jayF0x](https://github.com/jayf0x)
