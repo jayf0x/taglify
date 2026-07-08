@@ -1,0 +1,56 @@
+{
+  "name": "taglify",
+  "version": "0.0.1",
+  "type": "module",
+  "private": false,
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@trivago/prettier-plugin-sort-imports": "^5.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.6.0",
+    "size-limit": "^11.0.0",
+    "@size-limit/file": "^11.0.0",
+    "esbuild": "^0.24.0"
+  },
+  "peerDependencies": {},
+  "license": "MIT",
+  "author": "jayF0x",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=esm && bun build src/index.ts --outdir dist --entry-naming index.cjs --target node --format cjs && tsc",
+    "typecheck": "tsc --noEmit --strict --skipLibCheck src/index.ts",
+    "test": "bun test",
+    "test:run": "bun test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "npm:deploy": "bash ./scripts/publish-npm.sh",
+    "rm:stalepr": "git branch -vv | grep '\\[gone\\]' | awk '{print $1}' | xargs git branch -D",
+    "size": "size-limit",
+    "rkit:pull": "bunx repokit pull",
+    "rkit:push": "bunx repokit push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jayF0x/taglify.git"
+  },
+  "homepage": "https://github.com/jayF0x/taglify#readme",
+  "bugs": {
+    "url": "https://github.com/jayF0x/taglify/issues"
+  }
+}

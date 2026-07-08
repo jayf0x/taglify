@@ -1,0 +1,35 @@
+{
+  "layout": "jayf0x-npm-lib",
+  "vars": {
+    "github_user": "jayF0x",
+    "repo": "taglify"
+  },
+  "files": [
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/docs.md",
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/improvement.md",
+    ".github/workflows/ci.yml",
+    ".github/workflows/publish.yml",
+    ".prettierignore",
+    ".prettierrc",
+    ".vscode/settings.json",
+    "scripts/extract_changelog.sh",
+    "scripts/publish-npm.sh"
+  ],
+  "fields": ["license", "author", "type", "engines", "devDependencies"],
+  "scripts": [
+    "typecheck",
+    "test",
+    "test:run",
+    "format",
+    "format:check",
+    "npm:deploy",
+    "rm:stalepr",
+    "size",
+    "rkit:pull",
+    "rkit:push"
+  ],
+  "templates": ["repository", "homepage", "bugs"],
+  "disabled": ["typecheck"]
+}
