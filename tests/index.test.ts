@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -14,8 +14,7 @@ test('replaces a single tag', () => {
 });
 
 test('replaces multiple tags', () => {
-  const text =
-    '<!-- A:START -->x<!-- A:END -->\n<!-- B:START -->y<!-- B:END -->';
+  const text = '<!-- A:START -->x<!-- A:END -->\n<!-- B:START -->y<!-- B:END -->';
   const result = taglifyText(text, { A: '1', B: '2' });
 
   expect(result.text).toContain('<!-- A:START -->\n1\n<!-- A:END -->');
@@ -31,8 +30,7 @@ test('leaves text unchanged when tag is missing', () => {
 });
 
 test('replaces multiple occurrences of the same tag', () => {
-  const text =
-    '<!-- TAG:START -->a<!-- TAG:END -->\n<!-- TAG:START -->b<!-- TAG:END -->';
+  const text = '<!-- TAG:START -->a<!-- TAG:END -->\n<!-- TAG:START -->b<!-- TAG:END -->';
   const result = taglifyText(text, { TAG: 'x' });
 
   const matches = result.text.match(/x/g);
@@ -59,16 +57,12 @@ test('taglifyFile writes only when content changed', () => {
 
   const changed = taglifyFile(filePath, { TAG: 'new' });
   expect(changed).toBe(true);
-  expect(readFileSync(filePath, 'utf8')).toBe(
-    '<!-- TAG:START -->\nnew\n<!-- TAG:END -->',
-  );
+  expect(readFileSync(filePath, 'utf8')).toBe('<!-- TAG:START -->\nnew\n<!-- TAG:END -->');
 
   const unchanged = taglifyFile(filePath, { OTHER: 'value' });
   expect(unchanged).toBe(false);
 });
 
 test('taglifyFile throws a friendly error when file does not exist', () => {
-  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow(
-    'File not found: /nonexistent/path.md',
-  );
+  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow('File not found: /nonexistent/path.md');
 });

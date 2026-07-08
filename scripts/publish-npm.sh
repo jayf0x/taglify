@@ -51,7 +51,7 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
 fi
 
 # ── c. update changelog.md via Claude Code CLI ──────────────────────────────
-PREV_TAG=$(git tag --sort=-version:refname | grep "^v" | head -1)
+PREV_TAG=$(git tag --sort=-version:refname | grep "^v" | head -1 || true)
 COMMIT_LOG=$(git log --oneline "$PREV_TAG"..HEAD 2>/dev/null || git log --oneline | head -20)
 
 echo ""

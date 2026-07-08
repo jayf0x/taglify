@@ -7,9 +7,7 @@
 
 ![Preview](./assets/preview.png)
 
-
 > ⭐ **Star [this repository](https://github.com/jayf0x/taglify) if you’d like to support its growth**
-
 
 Ever felt the friction of writing a one-off regex just to keep a badge, a
 table, or a live stat up to date in a file?
@@ -60,6 +58,7 @@ in your version bump script or a `prepublishOnly` hook:
 ```ts
 // scripts/sync-readme.ts — run before every release
 import { taglifyFile } from 'taglify';
+
 import { version } from '../package.json';
 
 taglifyFile('./README.md', {
@@ -112,14 +111,14 @@ content
 <!-- TAG:END -->
 ```
 
-| Rule                          | Behavior                                  |
-| ------------------------------ | ----------------------------------------- |
-| Tag name casing                | Case-insensitive, normalized to uppercase |
-| Content between markers        | Fully replaced                            |
-| Markers themselves             | Always preserved                          |
-| Multiple blocks, same tag      | All replaced                              |
-| Tag with no matching block     | Skipped                                   |
-| Replacement value type         | `string` only                             |
+| Rule                       | Behavior                                  |
+| -------------------------- | ----------------------------------------- |
+| Tag name casing            | Case-insensitive, normalized to uppercase |
+| Content between markers    | Fully replaced                            |
+| Markers themselves         | Always preserved                          |
+| Multiple blocks, same tag  | All replaced                              |
+| Tag with no matching block | Skipped                                   |
+| Replacement value type     | `string` only                             |
 
 ---
 

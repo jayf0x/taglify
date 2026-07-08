@@ -5,9 +5,7 @@ export interface TaglifyResult {
   changed: boolean;
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Replaces content between HTML comment markers.
@@ -17,18 +15,12 @@ function escapeRegExp(value: string): string {
  * old content
  * <!-- BADGES:END -->
  */
-export function taglifyText(
-  text: string,
-  tags: Record<string, string>,
-): TaglifyResult {
+export const taglifyText = (text: string, tags: Record<string, string>): TaglifyResult => {
   let output = text;
 
   for (const [tagName, replacement] of Object.entries(tags)) {
     const tag = escapeRegExp(tagName.toUpperCase());
-    const blockRegex = new RegExp(
-      `<!-- ${tag}:START -->(.*?)<!-- ${tag}:END -->`,
-      'gis',
-    );
+    const blockRegex = new RegExp(`<!-- ${tag}:START -->(.*?)<!-- ${tag}:END -->`, 'gis');
 
     output = output.replace(blockRegex, (_match, block: string) => {
       const lineEnding = block.includes('\r\n') ? '\r\n' : '\n';
@@ -40,7 +32,7 @@ export function taglifyText(
     text: output,
     changed: output !== text,
   };
-}
+};
 
 /**
  * Applies tag replacements to a file.
@@ -48,10 +40,7 @@ export function taglifyText(
  * Returns true if the file was modified.
  * Throws a friendly error if the file does not exist.
  */
-export function taglifyFile(
-  filePath: string,
-  tags: Record<string, string>,
-): boolean {
+export const taglifyFile = (filePath: string, tags: Record<string, string>): boolean => {
   let text: string;
   try {
     text = readFileSync(filePath, 'utf8');
@@ -69,4 +58,4 @@ export function taglifyFile(
   }
 
   return result.changed;
-}
+};
