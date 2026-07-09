@@ -1,6 +1,6 @@
 {
   "name": "taglify",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Synchronize generated content inside marker blocks in any text file.",
   "keywords": [
     "markers",
