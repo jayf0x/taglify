@@ -5,12 +5,8 @@ export interface TaglifyResult {
   changed: boolean;
 }
 
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 // Maps marker open string -> close string, e.g. `{ '<!-- ': ' -->' }`.
 export type CommentStyle = Record<string, string>;
-
-const DEFAULT_COMMENT_STYLE: CommentStyle = { '<!-- ': ' -->' };
 
 export interface TaglifyOptions {
   /**
@@ -21,6 +17,12 @@ export interface TaglifyOptions {
   commentStyle?: CommentStyle;
 }
 
+const DEFAULT_COMMENT_STYLE: CommentStyle = { '<!-- ': ' -->' };
+
+const REGEXP_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
+
+const escapeRegExp = (value: string): string => value.replace(REGEXP_SPECIAL_CHARS, '\\$&');
+
 /**
  * Replaces content between marker comments.
  *
@@ -30,20 +32,29 @@ export interface TaglifyOptions {
  * <!-- BADGES:END -->
  */
 export const taglifyText = (text: string, tags: Record<string, string>, options?: TaglifyOptions): TaglifyResult => {
-  const commentStyles = Object.entries(options?.commentStyle ?? DEFAULT_COMMENT_STYLE);
+  const escapedStyles = Object.entries(options?.commentStyle ?? DEFAULT_COMMENT_STYLE).map(([prefix, suffix]) => ({
+    prefix,
+    suffix,
+    escPrefix: escapeRegExp(prefix),
+    escSuffix: escapeRegExp(suffix),
+  }));
   let output = text;
 
   for (const [tagName, replacement] of Object.entries(tags)) {
     const tag = escapeRegExp(tagName.toUpperCase());
 
-    for (const [prefix, suffix] of commentStyles) {
-      const start = `${escapeRegExp(prefix)}${tag}:START${escapeRegExp(suffix)}`;
-      const end = `${escapeRegExp(prefix)}${tag}:END${escapeRegExp(suffix)}`;
-      const blockRegex = new RegExp(`${start}(.*?)${end}`, 'gis');
+    for (const { prefix, suffix, escPrefix, escSuffix } of escapedStyles) {
+      const reStart = `${escPrefix}${tag}:START${escSuffix}`;
+      const reEnd = `${escPrefix}${tag}:END${escSuffix}`;
+
+      const blockRegex = new RegExp(`${reStart}(.*?)${reEnd}`, 'gis');
 
       output = output.replace(blockRegex, (_match, block: string) => {
-        const lineEnding = block.includes('\r\n') ? '\r\n' : '\n';
-        return `${prefix}${tag}:START${suffix}${lineEnding}${replacement}${lineEnding}${prefix}${tag}:END${suffix}`;
+        const lEnd = block.includes('\r\n') ? '\r\n' : '\n';
+        const start = `${prefix}${tag}:START${suffix}`;
+        const end = `${prefix}${tag}:END${suffix}`;
+
+        return `${start}${lEnd}${replacement}${lEnd}${end}`;
       });
     }
   }
