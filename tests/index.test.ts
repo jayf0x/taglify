@@ -44,34 +44,52 @@ test('tag names are case-insensitive', () => {
   expect(result.text).toBe('<!-- BADGES:START -->\nnew\n<!-- BADGES:END -->');
 });
 
-test('replaces block-comment style markers', () => {
-  const text = '/* BADGES:START */old/* BADGES:END */';
+test('does not match "#"-style markers by default', () => {
+  const text = '# BADGES:START\nold\n# BADGES:END';
   const result = taglifyText(text, { BADGES: 'new' });
+
+  expect(result.changed).toBe(false);
+});
+
+test('replaces block-comment style markers via commentStyle option', () => {
+  const text = '/* BADGES:START */old/* BADGES:END */';
+  const result = taglifyText(text, { BADGES: 'new' }, { commentStyle: { '/* ': ' */' } });
 
   expect(result.changed).toBe(true);
   expect(result.text).toBe('/* BADGES:START */\nnew\n/* BADGES:END */');
 });
 
-test('replaces slash-comment style markers', () => {
+test('replaces slash-comment style markers via commentStyle option', () => {
   const text = '// BADGES:START\nold\n// BADGES:END';
-  const result = taglifyText(text, { BADGES: 'new' });
+  const result = taglifyText(text, { BADGES: 'new' }, { commentStyle: { '// ': '' } });
 
   expect(result.text).toBe('// BADGES:START\nnew\n// BADGES:END');
 });
 
-test('replaces hash-comment style markers', () => {
+test('replaces hash-comment style markers via commentStyle option', () => {
   const text = '# BADGES:START\nold\n# BADGES:END';
-  const result = taglifyText(text, { BADGES: 'new' });
+  const result = taglifyText(text, { BADGES: 'new' }, { commentStyle: { '# ': '' } });
 
   expect(result.text).toBe('# BADGES:START\nnew\n# BADGES:END');
 });
 
-test('mixed comment styles in the same file are each replaced', () => {
-  const text = '<!-- A:START -->x<!-- A:END -->\n// B:START\ny\n// B:END';
-  const result = taglifyText(text, { A: '1', B: '2' });
+test('commentStyle with multiple entries matches each style in the same file', () => {
+  const text = '// A:START\nx\n// A:END\n# B:START\ny\n# B:END';
+  const result = taglifyText(
+    text,
+    { A: '1', B: '2' },
+    { commentStyle: { '// ': '', '# ': '' } },
+  );
 
-  expect(result.text).toContain('<!-- A:START -->\n1\n<!-- A:END -->');
-  expect(result.text).toContain('// B:START\n2\n// B:END');
+  expect(result.text).toContain('// A:START\n1\n// A:END');
+  expect(result.text).toContain('# B:START\n2\n# B:END');
+});
+
+test('setting commentStyle replaces the default HTML-comment style entirely', () => {
+  const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
+  const result = taglifyText(text, { BADGES: 'new' }, { commentStyle: { '# ': '' } });
+
+  expect(result.changed).toBe(false);
 });
 
 let tempDir: string;
