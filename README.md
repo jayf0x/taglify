@@ -11,70 +11,63 @@
 
 I was writing bash functions to have my e2e tests output live stats in the
 README of [compress-shader-literals](https://github.com/jayf0x/compress-shader-literals).
-Then I started reaching for the same trick in other tools and thought "why not ship this".
-Enjoy 🤗
+Then made this into a function and now sharing the results 🤗
 
 ## Installation
 
 ```bash
 bun add taglify
-# OR npm / pnpm / yarn ...
 ```
 
 ## Example
 
-In your README:
+Your README.md **before**:
 
 ```md
 <!-- STATS:START -->
 <!-- STATS:END -->
 ```
 
-You build or release flow:
+Somewhere:
 
 ```js
-// scripts/sync-readme.js
 import { taglifyFile } from 'taglify';
 
 const coverageSummary = '...';
 taglifyFile('./README.md', { STATS: coverageSummary });
 ```
 
-```json
-// package.json
-{
-  "scripts": {
-    "prepublishOnly": "bun run scripts/sync-readme.js"
-  }
-}
-```
-
-result:
+Your README.md **after**:
 
 ```md
+<!-- STATS:START -->
+
 | Browser | Passed | Failed |
 | ------- | ------ | ------ |
 | Brave   | 127    | 0      |
 | Firefox | 127    | 0      |
 | Edge    | 0      | 127    |
+
+<!-- STATS:END -->
 ```
 
 ---
 
-Same idea works in a CI step, a git pre-commit hook, or a cron job.
+Same idea works for any file type, in a CI step, a git pre-commit hook, or a cron job.
 
 ## API
 
-### `taglifyText(text, tags)`
+### `taglifyText(text, tags, options?)`
 
-| Param  | Type                     | Description                    |
-| ------ | ------------------------ | ------------------------------ |
-| `text` | `string`                 | Source text                    |
-| `tags` | `Record<string, string>` | Tag name → replacement content |
+| Param     | Type                     | Description                    |
+| --------- | ------------------------ | ------------------------------ |
+| `text`    | `string`                 | Source text                    |
+| `tags`    | `Record<string, string>` | Tag name → replacement content |
+| `options` | `TaglifyOptions`         | See below                      |
 
 Returns `{ text: string, changed: boolean }`.
 
-### `taglifyFile(filePath, tags)`
+### `taglifyFile(filePath, tags, options?)`
 
 Reads `filePath`, applies `taglifyText`, and writes back only if the content
 changed.
@@ -82,6 +75,26 @@ changed.
 - Returns `boolean` — whether the file was modified.
 - Throws a friendly error (`File not found: <path>`) if the file doesn't
   exist.
+
+### `TaglifyOptions`
+
+| Option         | Type                  | Default               | Description                          |
+| -------------- | --------------------- | --------------------- | ------------------------------------ |
+| `commentStyle` | `Record<open, close>` | `{ '<!-- ': ' -->' }` | Marker open/close pairs to recognize |
+
+`commentStyle` replaces the default entirely — pass every style you want
+matched. Multiple entries are all tried, so different blocks in the same
+file can use different styles:
+
+```js
+taglifyText(text, tags, {
+  commentStyle: { '// ': '', '# ': '', '/* ': ' */' },
+});
+```
+
+Only HTML comments are matched by default because `#` and `//` are common
+in ordinary content (markdown headings, URLs) and risk false-positive
+matches — opt in explicitly for those.
 
 ---
 
@@ -109,7 +122,7 @@ content
 Taglify is a small, deliberately minimal util today. These are ideas for
 where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 
-- [ ] Configurable marker syntax and comment styles (`//`, `#`, `/* */`)
+- [ ] Custom delimiters per call (`:START`/`:END` overrides)
 - [ ] Create missing blocks instead of skipping
 - [ ] CLI with dry-run and diff output
 - [ ] Glob / directory processing
