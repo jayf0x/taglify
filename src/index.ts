@@ -29,18 +29,14 @@ export interface TaglifyOptions {
  * old content
  * <!-- BADGES:END -->
  */
-export const taglifyText = (
-  text: string,
-  tags: Record<string, string>,
-  options?: TaglifyOptions,
-): TaglifyResult => {
-  const commentStyle = options?.commentStyle ?? DEFAULT_COMMENT_STYLE;
+export const taglifyText = (text: string, tags: Record<string, string>, options?: TaglifyOptions): TaglifyResult => {
+  const commentStyles = Object.entries(options?.commentStyle ?? DEFAULT_COMMENT_STYLE);
   let output = text;
 
   for (const [tagName, replacement] of Object.entries(tags)) {
     const tag = escapeRegExp(tagName.toUpperCase());
 
-    for (const [prefix, suffix] of Object.entries(commentStyle)) {
+    for (const [prefix, suffix] of commentStyles) {
       const start = `${escapeRegExp(prefix)}${tag}:START${escapeRegExp(suffix)}`;
       const end = `${escapeRegExp(prefix)}${tag}:END${escapeRegExp(suffix)}`;
       const blockRegex = new RegExp(`${start}(.*?)${end}`, 'gis');
@@ -64,11 +60,7 @@ export const taglifyText = (
  * Returns true if the file was modified.
  * Throws a friendly error if the file does not exist.
  */
-export const taglifyFile = (
-  filePath: string,
-  tags: Record<string, string>,
-  options?: TaglifyOptions,
-): boolean => {
+export const taglifyFile = (filePath: string, tags: Record<string, string>, options?: TaglifyOptions): boolean => {
   let text: string;
   try {
     text = readFileSync(filePath, 'utf8');
