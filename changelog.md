@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.3
+
+- Internal/infrastructure changes only
+
 ## v1.0.2
 
 - Add support for `//`, `#`, and `/* */` comment styles
