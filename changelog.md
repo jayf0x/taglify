@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.2
+
+- Add support for `//`, `#`, and `/* */` comment styles
+- Make commentStyle option configurable as a passable prop
+
 ## v1.0.0
 
 - Add `taglifyText` function to replace content between HTML comment markers

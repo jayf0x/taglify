@@ -75,11 +75,7 @@ test('replaces hash-comment style markers via commentStyle option', () => {
 
 test('commentStyle with multiple entries matches each style in the same file', () => {
   const text = '// A:START\nx\n// A:END\n# B:START\ny\n# B:END';
-  const result = taglifyText(
-    text,
-    { A: '1', B: '2' },
-    { commentStyle: { '// ': '', '# ': '' } },
-  );
+  const result = taglifyText(text, { A: '1', B: '2' }, { commentStyle: { '// ': '', '# ': '' } });
 
   expect(result.text).toContain('// A:START\n1\n// A:END');
   expect(result.text).toContain('# B:START\n2\n# B:END');
