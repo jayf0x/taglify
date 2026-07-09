@@ -1,8 +1,10 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 export interface TaglifyResult {
   text: string;
   changed: boolean;
+  /** Writes `text` to `filePath` if `changed`; no-ops otherwise. */
+  write: (filePath: string) => void;
 }
 
 // Maps marker open string -> close string, e.g. `{ '<!-- ': ' -->' }`.
@@ -15,6 +17,8 @@ export interface TaglifyOptions {
    * styles (`#`, `//`) risk false-positive matches on non-comment content.
    */
   commentStyle?: CommentStyle;
+  /** When true, taglifyFile throws on errors instead of logging and returning false. Default false. */
+  throwOnError?: boolean;
 }
 
 const DEFAULT_COMMENT_STYLE: CommentStyle = { '<!-- ': ' -->' };
@@ -59,34 +63,41 @@ export const taglifyText = (text: string, tags: Record<string, string>, options?
     }
   }
 
+  const changed = output !== text;
+  const write = (filePath: string): void => {
+    if (changed) writeFileSync(filePath, output, 'utf8');
+  };
+
   return {
     text: output,
-    changed: output !== text,
+    changed,
+    write,
   };
 };
 
+const handleError = (error: unknown, options?: TaglifyOptions): false => {
+  if (options?.throwOnError) throw error;
+  console.error(error);
+  return false;
+};
+
 /**
- * Applies tag replacements to a file.
+ * Applies tag replacements to a file, writing back only if content changed.
  *
- * Returns true if the file was modified.
- * Throws a friendly error if the file does not exist.
+ * Returns true if the file was modified, false on any error (missing file,
+ * read/write failure). Pass `{ throwOnError: true }` to throw instead.
  */
 export const taglifyFile = (filePath: string, tags: Record<string, string>, options?: TaglifyOptions): boolean => {
-  let text: string;
+  if (!existsSync(filePath)) {
+    return handleError(new Error(`File not found: ${filePath}`), options);
+  }
+
   try {
-    text = readFileSync(filePath, 'utf8');
+    const text = readFileSync(filePath, 'utf8');
+    const result = taglifyText(text, tags, options);
+    result.write(filePath);
+    return result.changed;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new Error(`File not found: ${filePath}`);
-    }
-    throw error;
+    return handleError(error, options);
   }
-
-  const result = taglifyText(text, tags, options);
-
-  if (result.changed) {
-    writeFileSync(filePath, result.text, 'utf8');
-  }
-
-  return result.changed;
 };

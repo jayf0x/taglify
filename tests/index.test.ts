@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test';
+import { afterEach, expect, spyOn, test } from 'bun:test';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -107,6 +107,32 @@ test('taglifyFile writes only when content changed', () => {
   expect(unchanged).toBe(false);
 });
 
-test('taglifyFile throws a friendly error when file does not exist', () => {
-  expect(() => taglifyFile('/nonexistent/path.md', {})).toThrow('File not found: /nonexistent/path.md');
+test('taglifyFile logs and returns false when file does not exist', () => {
+  const errorSpy = spyOn(console, 'error').mockImplementation(() => {});
+
+  const result = taglifyFile('/nonexistent/path.md', {});
+
+  expect(result).toBe(false);
+  expect(errorSpy).toHaveBeenCalled();
+  errorSpy.mockRestore();
+});
+
+test('taglifyFile throws when file does not exist and throwOnError is set', () => {
+  expect(() => taglifyFile('/nonexistent/path.md', {}, { throwOnError: true })).toThrow(
+    'File not found: /nonexistent/path.md',
+  );
+});
+
+test('taglifyText result.write only writes when changed', () => {
+  tempDir = mkdtempSync(join(tmpdir(), 'taglify-'));
+  const filePath = join(tempDir, 'file.md');
+  writeFileSync(filePath, 'untouched', 'utf8');
+
+  const unchanged = taglifyText('<!-- TAG:START -->old<!-- TAG:END -->', { OTHER: 'new' });
+  unchanged.write(filePath);
+  expect(readFileSync(filePath, 'utf8')).toBe('untouched');
+
+  const changed = taglifyText('<!-- TAG:START -->old<!-- TAG:END -->', { TAG: 'new' });
+  changed.write(filePath);
+  expect(readFileSync(filePath, 'utf8')).toBe(changed.text);
 });
