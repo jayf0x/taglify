@@ -1,6 +1,7 @@
 # Taglify — keep generated content in sync, everywhere
 
 <!-- SHIELDS:START -->
+
 [![npm version](https://img.shields.io/npm/v/taglify)](https://www.npmjs.com/package/taglify)
 [![license](https://img.shields.io/npm/l/taglify)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](./tsconfig.json)
@@ -8,35 +9,39 @@
 <!-- SHIELDS:END -->
 
 <!-- PREVIEW:START -->
+
 ![Preview](./assets/preview.png)
 <!-- PREVIEW:END -->
 
 <!-- STARGAZE:START -->
+
 > ⭐ **Star this [repository](https://github.com/jayF0x/taglify) if you'd like to support its growth**
+
 <!-- STARGAZE:END -->
 
-I was writing bash functions to have my e2e tests output live stats in the
-README of [compress-shader-literals](https://github.com/jayf0x/compress-shader-literals).
-Then made this into a function and now sharing the results 🤗
+I was writing custom functions to have live stats in the README of [compress-shader-literals](https://github.com/jayf0x/compress-shader-literals).
+Centralized the logic into a simple reusable function, now sharing the result 🤗
 
 <!-- INSTALL:START -->
+
 ## Installation
 
 ```bash
 bun add taglify
 ```
+
 <!-- INSTALL:END -->
 
 ## Example
 
-Your README.md **before**:
+Add this to your readme:
 
 ```md
 <!-- STATS:START -->
 <!-- STATS:END -->
 ```
 
-Somewhere:
+In your build flow:
 
 ```js
 import { taglifyFile } from 'taglify';
@@ -45,7 +50,7 @@ const coverageSummary = '...';
 taglifyFile('./README.md', { STATS: coverageSummary });
 ```
 
-Your README.md **after**:
+**after**:
 
 ```md
 <!-- STATS:START -->
@@ -141,6 +146,7 @@ where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 - [ ] Support non-string values, serialized as formatted JSON
 
 <!-- LICENSE:START -->
+
 ## License
 
 [MIT](./LICENSE) © [jayF0x](https://github.com/jayF0x)
