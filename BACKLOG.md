@@ -5,9 +5,6 @@ Ideas for future work beyond the POC. Nothing here is scheduled.
 ## Configurable marker syntax
 Start: marker format is hardcoded as `<!-- TAG:START -->` / `<!-- TAG:END -->` in `taglifyText`. Let callers pass a custom prefix/suffix template. Stop: don't add a full templating language, just prefix/suffix strings.
 
-## Additional comment styles
-Start: support `//`, `#`, `/* */` as alternatives to the HTML-comment marker in `taglifyText`. Stop: cover these three styles only; arbitrary user-defined styles belong to "Configurable marker syntax" above.
-
 ## Custom delimiters per call
 Start: allow the `:START`/`:END` suffixes to be overridden per `taglifyText`/`taglifyFile` call instead of being fixed constants. Stop: per-call override only, no global config system.
 

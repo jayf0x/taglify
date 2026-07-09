@@ -7,25 +7,40 @@ export interface TaglifyResult {
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// Marker wrappers tried for every tag, in order. First one to match a block wins for that block.
+const COMMENT_STYLES: ReadonlyArray<{ prefix: string; suffix: string }> = [
+  { prefix: '<!-- ', suffix: ' -->' },
+  { prefix: '/* ', suffix: ' */' },
+  { prefix: '// ', suffix: '' },
+  { prefix: '# ', suffix: '' },
+];
+
 /**
- * Replaces content between HTML comment markers.
+ * Replaces content between marker comments.
  *
  * Example:
  * <!-- BADGES:START -->
  * old content
  * <!-- BADGES:END -->
+ *
+ * Also supports `/* *\/`, `//`, and `#` comment markers.
  */
 export const taglifyText = (text: string, tags: Record<string, string>): TaglifyResult => {
   let output = text;
 
   for (const [tagName, replacement] of Object.entries(tags)) {
     const tag = escapeRegExp(tagName.toUpperCase());
-    const blockRegex = new RegExp(`<!-- ${tag}:START -->(.*?)<!-- ${tag}:END -->`, 'gis');
 
-    output = output.replace(blockRegex, (_match, block: string) => {
-      const lineEnding = block.includes('\r\n') ? '\r\n' : '\n';
-      return `<!-- ${tag}:START -->${lineEnding}${replacement}${lineEnding}<!-- ${tag}:END -->`;
-    });
+    for (const { prefix, suffix } of COMMENT_STYLES) {
+      const start = `${escapeRegExp(prefix)}${tag}:START${escapeRegExp(suffix)}`;
+      const end = `${escapeRegExp(prefix)}${tag}:END${escapeRegExp(suffix)}`;
+      const blockRegex = new RegExp(`${start}(.*?)${end}`, 'gis');
+
+      output = output.replace(blockRegex, (_match, block: string) => {
+        const lineEnding = block.includes('\r\n') ? '\r\n' : '\n';
+        return `${prefix}${tag}:START${suffix}${lineEnding}${replacement}${lineEnding}${prefix}${tag}:END${suffix}`;
+      });
+    }
   }
 
   return {
