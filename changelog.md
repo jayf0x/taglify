@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.5
+
+- Add write function to modify file contents
+- Export Taglify via repokit integration
+
 ## v1.0.4
 
 - Internal/infrastructure changes only

@@ -140,11 +140,13 @@ Taglify is a small, deliberately minimal util today. These are ideas for
 where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 
 <!-- ROADMAP:START -->
+
 - [ ] Custom delimiters per call.
 - [ ] Create missing blocks instead of skipping.
 - [ ] Preserve surrounding indentation of the block.
 - [ ] Built-in formatting helpers.
 - [ ] CLI for running taglify against files/globs.
+
 <!-- ROADMAP:END -->
 
 ## License

@@ -119,7 +119,7 @@ test('taglifyFile logs and returns false when file does not exist', () => {
 
 test('taglifyFile throws when file does not exist and throwOnError is set', () => {
   expect(() => taglifyFile('/nonexistent/path.md', {}, { throwOnError: true })).toThrow(
-    'File not found: /nonexistent/path.md',
+    'File not found: /nonexistent/path.md'
   );
 });
 
