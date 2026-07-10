@@ -30,9 +30,9 @@
     "@trivago/prettier-plugin-sort-imports": "^5.0.0",
     "@types/bun": "latest",
     "@types/node": "^22.20.1",
-    "esbuild": "^0.24.0",
     "prettier": "^3.0.0",
     "size-limit": "^11.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.0"
   },
   "license": "MIT",
@@ -41,7 +41,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "bun run sync:roadmap && rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=esm && bun build src/index.ts --outdir dist --entry-naming index.cjs --target node --format cjs && tsc",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "sync:roadmap": "bun run scripts/sync-roadmap.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "bun test",

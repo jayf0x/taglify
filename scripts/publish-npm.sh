@@ -17,6 +17,7 @@ else
 fi
 
 # ── b. build + typecheck + test + e2e + format (fail before anything is touched) ──
+bun run sync:roadmap
 bun run build
 bun run typecheck
 bun run test
