@@ -41,7 +41,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=esm && bun build src/index.ts --outdir dist --entry-naming index.cjs --target node --format cjs && tsc",
+    "build": "bun run sync:roadmap && rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --format=esm && bun build src/index.ts --outdir dist --entry-naming index.cjs --target node --format cjs && tsc",
+    "sync:roadmap": "bun run scripts/sync-roadmap.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "bun test",
     "test:run": "bun test",

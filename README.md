@@ -139,15 +139,14 @@ content
 Taglify is a small, deliberately minimal util today. These are ideas for
 where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 
-- [ ] Custom delimiters per call (`:START`/`:END` overrides)
-- [ ] Create missing blocks instead of skipping
-- [ ] CLI with dry-run and diff output
-- [ ] Glob / directory processing
-- [ ] Support non-string values, serialized as formatted JSON
-
-<!-- LICENSE:START -->
+<!-- ROADMAP:START -->
+- [ ] Custom delimiters per call.
+- [ ] Create missing blocks instead of skipping.
+- [ ] Preserve surrounding indentation of the block.
+- [ ] Built-in formatting helpers.
+- [ ] CLI for running taglify against files/globs.
+<!-- ROADMAP:END -->
 
 ## License
 
-[MIT](./LICENSE) © [jayF0x](https://github.com/jayF0x)
-<!-- LICENSE:END -->
+[MIT](./LICENSE) © [jayF0x](https://github.com/jayf0x)

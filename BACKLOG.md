@@ -2,10 +2,6 @@
 
 Ideas for future work beyond the POC. Nothing here is scheduled.
 
-## Configurable marker syntax
-
-Start: marker format is hardcoded as `<!-- TAG:START -->` / `<!-- TAG:END -->` in `taglifyText`. Let callers pass a custom prefix/suffix template. Stop: don't add a full templating language, just prefix/suffix strings.
-
 ## Custom delimiters per call
 
 Start: allow the `:START`/`:END` suffixes to be overridden per `taglifyText`/`taglifyFile` call instead of being fixed constants. Stop: per-call override only, no global config system.
@@ -25,10 +21,6 @@ Start: ship small helper functions for common replacement shapes (tables, lists,
 ## CLI for running taglify against files/globs
 
 Start: add a `bin` entry that wraps `taglifyFile`/`taglifyText` for shell use, taking a file/glob and tag values. Stop: thin wrapper over the existing API, no new core logic.
-
-## Dry-run mode
-
-Start: add an option to `taglifyFile` that computes the result without calling `writeFileSync`, returning what would change. Stop: reuse `taglifyText`'s existing diff between input/output.
 
 ## Diff output for changed blocks
 
@@ -66,9 +58,9 @@ Start: allow a `tags` value to be a function `(currentBlockContent: string) => s
 
 Start: tighten `TaglifyResult`/`tags`/options types once the above features (non-string values, callbacks) land, so the public API stays type-safe. Stop: type-level work only, no behavior change.
 
-## Better error handling and error messages
+## Better error messages for non-missing-file errors
 
-Start: today only missing-file (`ENOENT`) has a friendly message; other errors (bad regex from tag names, unreadable files, malformed markers) pass through raw. Add clear messages for these cases. Stop: message clarity, not a new error-class hierarchy.
+Start: `taglifyFile` now logs (or throws via `throwOnError`) a friendly message for missing files; other errors (unreadable files, permission issues) still surface the raw underlying error. Add clear messages for these too. Stop: message clarity, not a new error-class hierarchy.
 
 ## Performance improvements for large files
 
