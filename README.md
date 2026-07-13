@@ -78,9 +78,10 @@ Same idea works for any file type, in a CI step, a git pre-commit hook, or a cro
 | `tags`    | `Record<string, string>` | Tag name → replacement content |
 | `options` | `TaglifyOptions`         | See below                      |
 
-Returns `{ text: string, changed: boolean, write: (filePath: string) => void }`.
+Returns `{ text: string, changed: boolean, diffs: BlockDiff[], write: (filePath: string) => void }`.
 `write` writes `text` to `filePath`, but only if `changed` — so you can call
 `taglifyText(...).write('./README.md')` without importing `fs` yourself.
+`diffs` lists `{ tag, before, after }` for each block that changed.
 
 ### `taglifyFile(filePath, tags, options?)`
 
@@ -88,15 +89,17 @@ Reads `filePath`, applies `taglifyText`, and writes back only if the content
 changed. Internally it's just `taglifyText(...).write(filePath)`.
 
 - Returns `boolean` — whether the file was modified.
-- On error (missing file, read/write failure), logs the error via
-  `console.error` and returns `false`. Pass `{ throwOnError: true }` to throw
-  instead.
+- On error (missing file, unreadable file, write failure), logs a clear
+  message (with the underlying error as `cause`) via `console.error` and
+  returns `false`. Pass `{ throwOnError: true }` to throw instead.
 
 ### `TaglifyOptions`
 
 | Option         | Type                  | Default               | Description                                                |
 | -------------- | --------------------- | --------------------- | ---------------------------------------------------------- |
 | `commentStyle` | `Record<open, close>` | `{ '<!-- ': ' -->' }` | Marker open/close pairs to recognize                       |
+| `startSuffix`  | `string`              | `'START'`             | Suffix marking the start of a block, e.g. `TAG:START`      |
+| `endSuffix`    | `string`              | `'END'`               | Suffix marking the end of a block, e.g. `TAG:END`          |
 | `throwOnError` | `boolean`             | `false`               | `taglifyFile` throws on error instead of logging + `false` |
 
 `commentStyle` replaces the default entirely — pass every style you want
@@ -141,11 +144,11 @@ where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 
 <!-- ROADMAP:START -->
 
-- [ ] Custom delimiters per call.
 - [ ] Create missing blocks instead of skipping.
 - [ ] Preserve surrounding indentation of the block.
 - [ ] Built-in formatting helpers.
 - [ ] CLI for running taglify against files/globs.
+- [ ] Async API (`taglifyFileAsync`).
 
 <!-- ROADMAP:END -->
 

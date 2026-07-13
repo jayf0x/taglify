@@ -88,6 +88,37 @@ test('setting commentStyle replaces the default HTML-comment style entirely', ()
   expect(result.changed).toBe(false);
 });
 
+test('custom startSuffix/endSuffix override the default markers', () => {
+  const text = '<!-- BADGES:OPEN -->old<!-- BADGES:CLOSE -->';
+  const result = taglifyText(text, { BADGES: 'new' }, { startSuffix: 'OPEN', endSuffix: 'CLOSE' });
+
+  expect(result.changed).toBe(true);
+  expect(result.text).toBe('<!-- BADGES:OPEN -->\nnew\n<!-- BADGES:CLOSE -->');
+});
+
+test('does not match default START/END markers when custom suffixes are set', () => {
+  const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
+  const result = taglifyText(text, { BADGES: 'new' }, { startSuffix: 'OPEN', endSuffix: 'CLOSE' });
+
+  expect(result.changed).toBe(false);
+});
+
+test('diffs lists before/after content for each changed block', () => {
+  const text = '<!-- A:START -->x<!-- A:END -->\n<!-- B:START -->\ny\n<!-- B:END -->';
+  const result = taglifyText(text, { A: '1', B: 'y' });
+
+  expect(result.diffs).toEqual([
+    { tag: 'A', before: '<!-- A:START -->x<!-- A:END -->', after: '<!-- A:START -->\n1\n<!-- A:END -->' },
+  ]);
+});
+
+test('diffs is empty when nothing changes', () => {
+  const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
+  const result = taglifyText(text, { OTHER: 'new' });
+
+  expect(result.diffs).toEqual([]);
+});
+
 let tempDir: string;
 
 afterEach(() => {

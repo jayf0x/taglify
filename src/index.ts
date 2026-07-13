@@ -1,8 +1,16 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
+export interface BlockDiff {
+  tag: string;
+  before: string;
+  after: string;
+}
+
 export interface TaglifyResult {
   text: string;
   changed: boolean;
+  /** Before/after content of each block that changed. */
+  diffs: BlockDiff[];
   /** Writes `text` to `filePath` if `changed`; no-ops otherwise. */
   write: (filePath: string) => void;
 }
@@ -17,11 +25,17 @@ export interface TaglifyOptions {
    * styles (`#`, `//`) risk false-positive matches on non-comment content.
    */
   commentStyle?: CommentStyle;
+  /** Suffix marking the start of a block, e.g. `TAG:START`. Default 'START'. */
+  startSuffix?: string;
+  /** Suffix marking the end of a block, e.g. `TAG:END`. Default 'END'. */
+  endSuffix?: string;
   /** When true, taglifyFile throws on errors instead of logging and returning false. Default false. */
   throwOnError?: boolean;
 }
 
 const DEFAULT_COMMENT_STYLE: CommentStyle = { '<!-- ': ' -->' };
+const DEFAULT_START_SUFFIX = 'START';
+const DEFAULT_END_SUFFIX = 'END';
 
 const REGEXP_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
 
@@ -42,23 +56,29 @@ export const taglifyText = (text: string, tags: Record<string, string>, options?
     escPrefix: escapeRegExp(prefix),
     escSuffix: escapeRegExp(suffix),
   }));
+  const startSuffix = options?.startSuffix ?? DEFAULT_START_SUFFIX;
+  const endSuffix = options?.endSuffix ?? DEFAULT_END_SUFFIX;
   let output = text;
+  const diffs: BlockDiff[] = [];
 
   for (const [tagName, replacement] of Object.entries(tags)) {
     const tag = escapeRegExp(tagName.toUpperCase());
 
     for (const { prefix, suffix, escPrefix, escSuffix } of escapedStyles) {
-      const reStart = `${escPrefix}${tag}:START${escSuffix}`;
-      const reEnd = `${escPrefix}${tag}:END${escSuffix}`;
+      const reStart = `${escPrefix}${tag}:${startSuffix}${escSuffix}`;
+      const reEnd = `${escPrefix}${tag}:${endSuffix}${escSuffix}`;
 
       const blockRegex = new RegExp(`${reStart}(.*?)${reEnd}`, 'gis');
 
       output = output.replace(blockRegex, (_match, block: string) => {
         const lEnd = block.includes('\r\n') ? '\r\n' : '\n';
-        const start = `${prefix}${tag}:START${suffix}`;
-        const end = `${prefix}${tag}:END${suffix}`;
+        const start = `${prefix}${tag}:${startSuffix}${suffix}`;
+        const end = `${prefix}${tag}:${endSuffix}${suffix}`;
+        const after = `${start}${lEnd}${replacement}${lEnd}${end}`;
 
-        return `${start}${lEnd}${replacement}${lEnd}${end}`;
+        if (after !== _match) diffs.push({ tag: tagName, before: _match, after });
+
+        return after;
       });
     }
   }
@@ -71,6 +91,7 @@ export const taglifyText = (text: string, tags: Record<string, string>, options?
   return {
     text: output,
     changed,
+    diffs,
     write,
   };
 };
@@ -92,12 +113,20 @@ export const taglifyFile = (filePath: string, tags: Record<string, string>, opti
     return handleError(new Error(`File not found: ${filePath}`), options);
   }
 
+  let text: string;
   try {
-    const text = readFileSync(filePath, 'utf8');
-    const result = taglifyText(text, tags, options);
-    result.write(filePath);
-    return result.changed;
+    text = readFileSync(filePath, 'utf8');
   } catch (error) {
-    return handleError(error, options);
+    return handleError(new Error(`Failed to read file: ${filePath}`, { cause: error }), options);
   }
+
+  const result = taglifyText(text, tags, options);
+
+  try {
+    result.write(filePath);
+  } catch (error) {
+    return handleError(new Error(`Failed to write file: ${filePath}`, { cause: error }), options);
+  }
+
+  return result.changed;
 };

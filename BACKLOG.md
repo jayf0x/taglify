@@ -2,10 +2,6 @@
 
 Ideas for future work beyond the POC. Nothing here is scheduled.
 
-## Custom delimiters per call
-
-Start: allow the `:START`/`:END` suffixes to be overridden per `taglifyText`/`taglifyFile` call instead of being fixed constants. Stop: per-call override only, no global config system.
-
 ## Create missing blocks instead of skipping
 
 Start: when a tag has no matching block in the file, currently nothing happens. Add an option to insert a new block (e.g. at EOF) instead of silently skipping. Stop: simple append behavior; no smart placement logic.
@@ -21,10 +17,6 @@ Start: ship small helper functions for common replacement shapes (tables, lists,
 ## CLI for running taglify against files/globs
 
 Start: add a `bin` entry that wraps `taglifyFile`/`taglifyText` for shell use, taking a file/glob and tag values. Stop: thin wrapper over the existing API, no new core logic.
-
-## Diff output for changed blocks
-
-Start: when a block changes, expose a before/after diff (e.g. unified diff string) alongside the boolean `changed` result. Stop: diff of changed blocks only, not whole-file diffing.
 
 ## Async API (`taglifyFileAsync`)
 
@@ -57,10 +49,6 @@ Start: allow a `tags` value to be a function `(currentBlockContent: string) => s
 ## Stronger typing for tag values and options
 
 Start: tighten `TaglifyResult`/`tags`/options types once the above features (non-string values, callbacks) land, so the public API stays type-safe. Stop: type-level work only, no behavior change.
-
-## Better error messages for non-missing-file errors
-
-Start: `taglifyFile` now logs (or throws via `throwOnError`) a friendly message for missing files; other errors (unreadable files, permission issues) still surface the raw underlying error. Add clear messages for these too. Stop: message clarity, not a new error-class hierarchy.
 
 ## Performance improvements for large files
 
