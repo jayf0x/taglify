@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.6
+
+- Add custom delimiter support
+- Add diff output mode
+- Improve error messages
+
 ## v1.0.5
 
 - Add write function to modify file contents
