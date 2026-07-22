@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 
 export interface BlockDiff {
   tag: string;
@@ -68,13 +69,18 @@ export const taglifyText = (text: string, tags: Record<string, string>, options?
       const reStart = `${escPrefix}${tag}:${startSuffix}${escSuffix}`;
       const reEnd = `${escPrefix}${tag}:${endSuffix}${escSuffix}`;
 
-      const blockRegex = new RegExp(`${reStart}(.*?)${reEnd}`, 'gis');
+      const reIndent = `([ \\t]*)${reStart}(.*?)${reEnd}`;
+      const blockRegex = new RegExp(reIndent, 'gis');
 
-      output = output.replace(blockRegex, (_match, block: string) => {
+      output = output.replace(blockRegex, (_match, indent: string, block: string) => {
         const lEnd = block.includes('\r\n') ? '\r\n' : '\n';
         const start = `${prefix}${tag}:${startSuffix}${suffix}`;
         const end = `${prefix}${tag}:${endSuffix}${suffix}`;
-        const after = `${start}${lEnd}${replacement}${lEnd}${end}`;
+        const indentedReplacement = replacement
+          .split(lEnd)
+          .map((line) => (line ? indent + line : line))
+          .join(lEnd);
+        const after = `${indent}${start}${lEnd}${indentedReplacement}${lEnd}${indent}${end}`;
 
         if (after !== _match) diffs.push({ tag: tagName, before: _match, after });
 
@@ -126,6 +132,39 @@ export const taglifyFile = (filePath: string, tags: Record<string, string>, opti
     result.write(filePath);
   } catch (error) {
     return handleError(new Error(`Failed to write file: ${filePath}`, { cause: error }), options);
+  }
+
+  return result.changed;
+};
+
+/**
+ * Async counterpart to `taglifyFile`, using `fs/promises` for non-blocking I/O.
+ * Behaves identically otherwise.
+ */
+export const taglifyFileAsync = async (
+  filePath: string,
+  tags: Record<string, string>,
+  options?: TaglifyOptions
+): Promise<boolean> => {
+  if (!existsSync(filePath)) {
+    return handleError(new Error(`File not found: ${filePath}`), options);
+  }
+
+  let text: string;
+  try {
+    text = await readFile(filePath, 'utf8');
+  } catch (error) {
+    return handleError(new Error(`Failed to read file: ${filePath}`, { cause: error }), options);
+  }
+
+  const result = taglifyText(text, tags, options);
+
+  if (result.changed) {
+    try {
+      await writeFile(filePath, result.text, 'utf8');
+    } catch (error) {
+      return handleError(new Error(`Failed to write file: ${filePath}`, { cause: error }), options);
+    }
   }
 
   return result.changed;

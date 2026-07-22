@@ -6,10 +6,6 @@ Ideas for future work beyond the POC. Nothing here is scheduled.
 
 Start: when a tag has no matching block in the file, currently nothing happens. Add an option to insert a new block (e.g. at EOF) instead of silently skipping. Stop: simple append behavior; no smart placement logic.
 
-## Preserve surrounding indentation of the block
-
-Start: replacement content is inserted without regard to the indentation of the `START` marker line. Detect and reapply that indentation to inserted lines. Stop: single-level indent matching, not a full reformatter.
-
 ## Built-in formatting helpers
 
 Start: ship small helper functions for common replacement shapes (tables, lists, badges) that callers can use to build the `replacement` string. Stop: a handful of helpers, not a templating/markdown-generation library.
@@ -17,10 +13,6 @@ Start: ship small helper functions for common replacement shapes (tables, lists,
 ## CLI for running taglify against files/globs
 
 Start: add a `bin` entry that wraps `taglifyFile`/`taglifyText` for shell use, taking a file/glob and tag values. Stop: thin wrapper over the existing API, no new core logic.
-
-## Async API (`taglifyFileAsync`)
-
-Start: add an async counterpart to `taglifyFile` using `fs/promises` (`readFile`/`writeFile`) for non-blocking I/O. Stop: mirror the sync API's behavior exactly, no new options.
 
 ## Glob support for matching multiple files
 

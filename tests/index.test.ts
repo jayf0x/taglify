@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { taglifyFile, taglifyText } from '../src/index';
+import { taglifyFile, taglifyFileAsync, taglifyText } from '../src/index';
 
 test('replaces a single tag', () => {
   const text = '<!-- BADGES:START -->old<!-- BADGES:END -->';
@@ -119,6 +119,13 @@ test('diffs is empty when nothing changes', () => {
   expect(result.diffs).toEqual([]);
 });
 
+test('preserves indentation of the START marker', () => {
+  const text = '  <!-- TAG:START -->\n  old\n  <!-- TAG:END -->';
+  const result = taglifyText(text, { TAG: 'line1\nline2' });
+
+  expect(result.text).toBe('  <!-- TAG:START -->\n  line1\n  line2\n  <!-- TAG:END -->');
+});
+
 let tempDir: string;
 
 afterEach(() => {
@@ -150,6 +157,25 @@ test('taglifyFile logs and returns false when file does not exist', () => {
 
 test('taglifyFile throws when file does not exist and throwOnError is set', () => {
   expect(() => taglifyFile('/nonexistent/path.md', {}, { throwOnError: true })).toThrow(
+    'File not found: /nonexistent/path.md'
+  );
+});
+
+test('taglifyFileAsync writes only when content changed', async () => {
+  tempDir = mkdtempSync(join(tmpdir(), 'taglify-'));
+  const filePath = join(tempDir, 'file.md');
+  writeFileSync(filePath, '<!-- TAG:START -->old<!-- TAG:END -->', 'utf8');
+
+  const changed = await taglifyFileAsync(filePath, { TAG: 'new' });
+  expect(changed).toBe(true);
+  expect(readFileSync(filePath, 'utf8')).toBe('<!-- TAG:START -->\nnew\n<!-- TAG:END -->');
+
+  const unchanged = await taglifyFileAsync(filePath, { OTHER: 'value' });
+  expect(unchanged).toBe(false);
+});
+
+test('taglifyFileAsync throws when file does not exist and throwOnError is set', async () => {
+  await expect(taglifyFileAsync('/nonexistent/path.md', {}, { throwOnError: true })).rejects.toThrow(
     'File not found: /nonexistent/path.md'
   );
 });
