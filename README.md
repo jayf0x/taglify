@@ -145,10 +145,10 @@ where it could go — see [BACKLOG.md](./BACKLOG.md) for the full list.
 <!-- ROADMAP:START -->
 
 - [ ] Create missing blocks instead of skipping.
-- [ ] Preserve surrounding indentation of the block.
 - [ ] Built-in formatting helpers.
 - [ ] CLI for running taglify against files/globs.
-- [ ] Async API (`taglifyFileAsync`).
+- [ ] Glob support for matching multiple files.
+- [ ] Directory/recursive processing.
 
 <!-- ROADMAP:END -->
 

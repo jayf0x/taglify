@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.7
+
+- Add async API functions
+- Preserve indentation in output
+
 ## v1.0.6
 
 - Add custom delimiter support
